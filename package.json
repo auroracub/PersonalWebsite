@@ -1,4 +1,6 @@
 {
+  "name": "personal-website",
+  "author": "AJ Haefner",
   "type": "module",
   "scripts": {
     "dev": "vite",

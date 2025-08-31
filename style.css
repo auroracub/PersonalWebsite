@@ -1,5 +1,6 @@
 html {
     min-height: 100%;
+    min-width: 100%; /* you never know */
     margin: 0px;
 }
 
@@ -9,8 +10,6 @@ body {
     padding: 0px;
     overflow: hidden;
     background-color: white;
-    /* background-color: #00000000; */
-    /* color: #00000000; */
     font-family: "Inter", sans-serif;
 }
 
@@ -20,7 +19,6 @@ body {
     left: 0px;
     width: 100vw;
     height: 100vh;
-    /* background-color: #222222; */
     background-color: white;
     display: flex;
     justify-content: center;
@@ -48,6 +46,7 @@ body {
 
 canvas {
     min-height: 100%;
+    min-width: 100%;
     margin: 0px;
     border: 0px;
     padding: 0px;
@@ -55,4 +54,5 @@ canvas {
     display: block;
     position: absolute;
     z-index: 0;
+    /* background-color: magenta; - for debugging */
 }
