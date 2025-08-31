@@ -2,17 +2,18 @@
 // Imports                    //
 ////////////////////////////////
 
-import * as THREE from 'three';
-import * as TWEEN from '@tweenjs/tween.js'
-import { PlanetBuilder } from './planet.js'
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import * as THREE from "three";
+import * as TWEEN from "@tweenjs/tween.js"
+import { PlanetBuilder } from "./planet"
+import { OrbitControls } from "three/addons/controls/OrbitControls";
+import { RGBELoader } from "three/addons/loaders/RGBELoader";
+import { Text } from "troika-three-text"
 
 ////////////////////////////////
 // Globals                    //
 ////////////////////////////////
 
-const DEBUG_MODE = false && process.env.NODE_ENV !== 'production';
+const DEBUG_MODE = false && process.env.NODE_ENV !== "production";
 
 let isWindowLoaded = false;
 let canvas = document.querySelector("canvas.threejs")
@@ -23,24 +24,32 @@ let earth, moon;
 let previousTime = 0.0;
 let cursor = new THREE.Vector2();
 
-let pmremGenerator;
+// let pmremGenerator;
 // const fileLoader = new THREE.FileLoader();
 // const fontLoader = new THREE.FontLoader();
 const textureLoader = new THREE.TextureLoader();
 const rgbeLoader = new RGBELoader();
 const tweenGroup = new TWEEN.Group();
 
+const FONTS = {
+  // roboto: "https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxM.woff",
+  // sacramento: "https://fonts.gstatic.com/s/sacramento/v5/buEzpo6gcdjy0EiZMBUG4C0f-w.woff",
+  inter: window.location.origin + "/fonts/Inter/static/Inter_24pt-Bold.ttf",
+  // inter: "https://fonts.gstatic.com/s/inter/v19/UcCo3FwrK3iLTcviYwYZ90A2N58.woff2",
+  // reenieBeanie: "https://fonts.gstatic.com/s/reeniebeanie/v21/z7NSdR76eDkaJKZJFkkjuvWxXPq1qw.woff2"
+}
+
 ////////////////////////////////
 // Window Events              //
 ////////////////////////////////
 
 // Loading transition
-window.addEventListener('load', function() {
+window.addEventListener("load", function() {
     isWindowLoaded = true;
 });
 
 // Canvas resizing
-window.addEventListener('resize', function() {
+window.addEventListener("resize", function() {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
     
@@ -139,9 +148,9 @@ document.addEventListener("click", (e) => {
     controls.enableDamping = true;
     controls.minPolarAngle = 0.25;
     controls.maxPolarAngle = 1.8;
-    controls.minDistance = 3.0;
-    controls.maxDistance = 15.0;
-    controls.maxTargetRadius = 12.0;
+    controls.minDistance = 3.0;         // Scale with target size?
+    controls.maxDistance = 12.0;        // Scale with target size?
+    controls.maxTargetRadius = 10.0;    // Scale with target size?
     controls.enablePan = false;
 
     ////////////////////////////////
@@ -244,32 +253,43 @@ document.addEventListener("click", (e) => {
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
 
+
+    // Add more objects here...
+
+
     // Create environment
 
-    const envMap = await rgbeLoader.loadAsync("images/environments/space_rich_multi_nebulae_1.hdr");
-    envMap.mapping = THREE.EquirectangularReflectionMapping;
-    scene.background = envMap;
-    scene.environment = envMap;
+    // const envMap = await rgbeLoader.loadAsync("images/environments/space_rich_multi_nebulae_1.hdr");
+    // envMap.mapping = THREE.EquirectangularReflectionMapping;
+    // scene.background = envMap;
+    // scene.environment = envMap;
 
-    // pmremGenerator = new THREE.PMREMGenerator(renderer);
-    // // pmremGenerator.compileCubemapShader();
+    // Set Control Target
+    const targetPosition = earth.mesh.position.clone();
+    targetPosition.y += earthRadius + 1.25;
+    controls.target = targetPosition;
+    camera.position.add(targetPosition);
+    camera.lookAt(targetPosition);
+    controls.update();
 
-    // hdriLoader.load("images/environments/space_rich_multi_nebulae_1.hdr", function (texture) {
-    //     const envMap = pmremGenerator.fromEquirectangular(texture).texture;
-    //     // envMap.magFilter = THREE.LinearFilter;
-    //     // envMap.needsUpdate = true;
-    //     scene.environment = envMap
-    //     texture.dispose();
-    // });
+    // Create Text
+    const text = new Text();
+    text.text = "Hello world!";
+    text.font = FONTS.inter;
+    console.log(FONTS.inter);
+    text.fontSize = 0.5;
+    text.color = 0xffffffff;
+    text.position.copy(targetPosition);
+    text.anchorX = "center";
+    text.anchorY = "center";
+    text.lookAt(camera.position);
+    // text.rotation.x = 0.0;
+    // text.rotation.z = 0.0;
+    scene.add(text);
 
-    // hdrCubeMap = new HDRCubeTextureLoader()
-    //     .load("images/environments/space_rich_multi_nebulae_1.hdr", function () {
-    //         hdrCubeRenderTarget = pmremGenerator.fromCubemap( hdrCubeMap );
-    //         hdrCubeMap.magFilter = THREE.LinearFilter;
-    //         hdrCubeMap.needsUpdate = true;
-    //     });
+    // Update the rendering:
+    text.sync();
 
-    // // Create Text
     // const myText = new Text()
     // scene.add(myText)
     // // Set properties to configure:
@@ -302,14 +322,6 @@ document.addEventListener("click", (e) => {
     //     earthSubheading.position.set(0.0, -1.0, 0.0);
     //     earthHeading.add(earthSubheading);
     // });
-    // Add more objects here...
-
-    // Set Control Target
-    const targetPosition = earth.mesh.position.clone();
-    targetPosition.y += earthRadius + 1.0;
-    controls.target = targetPosition;
-    camera.position.add(targetPosition);
-    camera.lookAt(targetPosition);
 }
 
 ////////////////////////////////
@@ -373,15 +385,17 @@ function onSceneLoaded() {
 }
 
 const onWindowLoaded = () => {
-    THREE.DefaultLoadingManager.onLoad = () => {
-        // Cleanup from init here...
+    onSceneLoaded();
 
-        onSceneLoaded();
-    };
+    // THREE.DefaultLoadingManager.onLoad = () => {
+    //     // Cleanup from init here...
+
+    //     onSceneLoaded();
+    // };
 }
 
 if (!isWindowLoaded) {
-    window.addEventListener('load', function() {
+    window.addEventListener("load", function() {
         isWindowLoaded = true;
         onWindowLoaded();
     });

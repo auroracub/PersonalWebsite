@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@tweenjs/tween.js": "^25.0.0",
-    "three": "^0.179.1"
+    "three": "^0.179.1",
+    "troika-three-text": "^0.52.4"
   }
 }
