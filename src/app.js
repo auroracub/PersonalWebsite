@@ -8,6 +8,7 @@ import { PlanetBuilder } from "./planet"
 import { OrbitControls } from "three/addons/controls/OrbitControls";
 import { RGBELoader } from "three/addons/loaders/RGBELoader";
 import { Text } from "troika-three-text"
+import interMediumFont from "/fonts/Inter/static/Inter_24pt-Medium.ttf"
 
 ////////////////////////////////
 // Globals                    //
@@ -31,13 +32,13 @@ const textureLoader = new THREE.TextureLoader();
 const rgbeLoader = new RGBELoader();
 const tweenGroup = new TWEEN.Group();
 
-const FONTS = {
-  // roboto: "https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxM.woff",
-  // sacramento: "https://fonts.gstatic.com/s/sacramento/v5/buEzpo6gcdjy0EiZMBUG4C0f-w.woff",
-  inter: window.location.origin + "/fonts/Inter/static/Inter_24pt-Bold.ttf",
-  // inter: "https://fonts.gstatic.com/s/inter/v19/UcCo3FwrK3iLTcviYwYZ90A2N58.woff2",
-  // reenieBeanie: "https://fonts.gstatic.com/s/reeniebeanie/v21/z7NSdR76eDkaJKZJFkkjuvWxXPq1qw.woff2"
-}
+// const FONTS = {
+//   // roboto: "https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxM.woff",
+//   // sacramento: "https://fonts.gstatic.com/s/sacramento/v5/buEzpo6gcdjy0EiZMBUG4C0f-w.woff",
+//   // inter: window.location.origin + "/fonts/Inter/static/Inter_24pt-Bold.ttf",
+//   // inter: "https://fonts.gstatic.com/s/inter/v19/UcCo3FwrK3iLTcviYwYZ90A2N58.woff2",
+//   // reenieBeanie: "https://fonts.gstatic.com/s/reeniebeanie/v21/z7NSdR76eDkaJKZJFkkjuvWxXPq1qw.woff2"
+// }
 
 ////////////////////////////////
 // Window Events              //
@@ -275,8 +276,7 @@ document.addEventListener("click", (e) => {
     // Create Text
     const text = new Text();
     text.text = "Hello world!";
-    text.font = FONTS.inter;
-    console.log(FONTS.inter);
+    text.font = interMediumFont;
     text.fontSize = 0.5;
     text.color = 0xffffffff;
     text.position.copy(targetPosition);
