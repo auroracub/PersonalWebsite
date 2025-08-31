@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>AJ's Site</title>
+        <link rel="stylesheet" href="./style.css" content-type="text/css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter" content-type="text/css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Reenie+Beanie" content-type="text/css">
+    </head>
+    <body>
+        <div id="loader" style="visibility: visible">
+            <!-- Loading animation or message goes here -->
+            <div class="spinner"></div>
+        </div>
+
+        <div id="content" style="visibility: collapse">
+            <canvas class="threejs"></canvas>
+
+            <!-- Earth: Home Page -->
+            <div class="planet home" id="earth" id="start">
+                <div class="label">Home</div>
+                <element radius="1.0"></element>
+                <element speed="1.0"></element>
+                <element phi="1.0"></element>
+                <element theta="0.0"></element>
+                <div class="heading">
+                    <h1>Hi, I'm the Moon's Earth</h1>
+                </div>
+                <div class="subheading">
+                    <p>It's also true</p>
+                </div>
+                <!-- <div class="heading">
+                    <h1>Hej, I'm AJ</h1>
+                </div>
+                <div class="subheading">
+                    <ul>
+                        <p>-> Technical Art</p>
+                        <p>-> Shader Dev</p>
+                        <p>-> Game Design</p>
+                    </ul>
+                </div> -->
+            </div>
+
+            <!-- Moon: About Page -->
+            <div class="moon about" id="earth-moon">
+                <div class="label">About</div>
+                <element radius="0.25"></element>
+                <element speed="0.25"></element>
+                <element phi="1.0"></element>
+                <element theta="0.0"></element>
+                <div class="heading">
+                    <h1>Hi, I'm Earth's Moon</h1>
+                </div>
+                <div class="subheading">
+                    <p>It's true</p>
+                </div>
+            </div>
+        </div>
+
+        <script type="module" src="./app.js" content-type="application/javascript"></script>
+    </body>
+</html>

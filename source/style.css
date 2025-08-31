@@ -1,0 +1,58 @@
+html {
+    min-height: 100%;
+    margin: 0px;
+}
+
+body {
+    margin: 0px;
+    border: 0px;
+    padding: 0px;
+    overflow: hidden;
+    background-color: white;
+    /* background-color: #00000000; */
+    /* color: #00000000; */
+    font-family: "Inter", sans-serif;
+}
+
+#loader {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    /* background-color: #222222; */
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Ensure it's on top of other content */
+    opacity: 1.0;
+    visibility: visible;
+    transition: opacity 1.0s ease, visibility 1.0s ease; /* Fade out effect */
+}
+
+.spinner {
+    border: 12px solid #e0e0e0;
+    border-top: 16px solid #3498db; /* Blue spinner color */
+    border-radius: 50%;
+    width: 81px;
+    height: 81px;
+    animation: spin 1s linear infinite; /* Spinner animation */
+    opacity: 0.75;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+canvas {
+    min-height: 100%;
+    margin: 0px;
+    border: 0px;
+    padding: 0px;
+    overflow: hidden;
+    display: block;
+    position: absolute;
+    z-index: 0;
+}
