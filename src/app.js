@@ -3,34 +3,41 @@
 ////////////////////////////////
 
 import * as THREE from "three";
+import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader";
+import { FontLoader } from "three/addons/loaders/FontLoader";
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { OrbitControls } from "three/addons/controls/OrbitControls";
 import * as TWEEN from "@tweenjs/tween.js"
 import { PlanetBuilder } from "./planet"
-import { OrbitControls } from "three/addons/controls/OrbitControls";
-import { RGBELoader } from "three/addons/loaders/RGBELoader";
-import { Text } from "troika-three-text"
-import interMediumFont from "/fonts/Inter/static/Inter_24pt-Medium.ttf"
+// import { RGBELoader } from "three/addons/loaders/RGBELoader";
+
+// import interMediumFont from "/fonts/Inter/static/Inter_24pt-Medium.ttf"
 
 ////////////////////////////////
 // Globals                    //
 ////////////////////////////////
 
 const DEBUG_MODE = false && process.env.NODE_ENV !== "production";
+const labelOffset = 1.25;
 
 let isWindowLoaded = false;
 let canvas = document.querySelector("canvas.threejs")
 let scene, camera, renderer, clock, controls;
 let ambientLight, directionalLight;
 let earth, moon;
+let labels = [];
 
 let previousTime = 0.0;
 let cursor = new THREE.Vector2();
+let controlScale = 1.0;
 
 // let pmremGenerator;
 // const fileLoader = new THREE.FileLoader();
-// const fontLoader = new THREE.FontLoader();
+const fontLoader = new FontLoader();
+const ttfLoader = new TTFLoader();
 const textureLoader = new THREE.TextureLoader();
-const rgbeLoader = new RGBELoader();
-const tweenGroup = new TWEEN.Group();
+// const rgbeLoader = new RGBELoader();
+const controlsTweenGroup = new TWEEN.Group();
 
 // const FONTS = {
 //   // roboto: "https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxM.woff",
@@ -118,7 +125,7 @@ document.addEventListener("click", (e) => {
     // Camera                     //
     ////////////////////////////////
     
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100.0);
+    camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100.0);
     // camera.position.y = 0.125;
     // camera.position.z = 4.0;
     camera.position.set(0.5, -2.5, 1.0);
@@ -149,9 +156,6 @@ document.addEventListener("click", (e) => {
     controls.enableDamping = true;
     controls.minPolarAngle = 0.25;
     controls.maxPolarAngle = 1.8;
-    controls.minDistance = 3.0;         // Scale with target size?
-    controls.maxDistance = 12.0;        // Scale with target size?
-    controls.maxTargetRadius = 10.0;    // Scale with target size?
     controls.enablePan = false;
 
     ////////////////////////////////
@@ -197,13 +201,14 @@ document.addEventListener("click", (e) => {
         element.wrapT = THREE.RepeatWrapping;
     });
 
-    const earthRadius = 2.5;
+    const earthScale = 1.0;
     earth = new PlanetBuilder()
-        .withGeometry(new THREE.SphereGeometry(earthRadius, 64, 64))
+        .withGeometry(new THREE.SphereGeometry(1.0, 64, 64))
         .withMaterial(earthMaterial)
         .build()
         .addToScene(scene)
-    earth.mesh.position.set(-3.0, -3.0, 0.0);
+    earth.mesh.position.set(0.0, 0.0, 3.0);
+    earth.mesh.scale.setScalar(earthScale);
 
     // Create Moon
     const moonAlbedo = textureLoader.load("images/surfaces/fabric-1/fabric-1-color.jpg");
@@ -224,13 +229,14 @@ document.addEventListener("click", (e) => {
         element.wrapS = THREE.RepeatWrapping;
         element.wrapT = THREE.RepeatWrapping;
     });
-    const moonRadius = 0.5;
+    const moonScale = 0.2;
     moon = new PlanetBuilder()
-        .withGeometry(new THREE.SphereGeometry(moonRadius, 24, 24))
+        .withGeometry(new THREE.SphereGeometry(1.0, 24, 24))
         .withMaterial(moonMaterial) // new THREE.MeshBasicMaterial({ color: 0xD9D9D9 }))
         .build()
         .addToScene(scene)
-    moon.mesh.position.set(earth.mesh.position.x + 3.0, earth.mesh.position.y + 5.0, earth.mesh.position.z - 10.0);
+    moon.mesh.position.set(earth.mesh.position.x + 1.5, earth.mesh.position.y + 4.5, earth.mesh.position.z - 8.0);
+    moon.mesh.scale.setScalar(moonScale);
 
     // Create particles
     const getRandomParticlePos = (particleCount, area) => {
@@ -249,7 +255,7 @@ document.addEventListener("click", (e) => {
     const particlesGeometry = new THREE.BufferGeometry();
     particlesGeometry.setAttribute(
         "position",
-        new THREE.BufferAttribute(getRandomParticlePos(1024, 32.0), 3)
+        new THREE.BufferAttribute(getRandomParticlePos(512, 24.0), 3)
     );
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
@@ -266,77 +272,108 @@ document.addEventListener("click", (e) => {
     // scene.environment = envMap;
 
     // Set Control Target
-    const targetPosition = earth.mesh.position.clone();
-    targetPosition.y += earthRadius + 1.25;
-    controls.target = targetPosition;
-    camera.position.add(targetPosition);
-    camera.lookAt(targetPosition);
+    const initialTargetPosition = getTargetPosition(earth.mesh, labelOffset);
+    controls.target = initialTargetPosition;
+    camera.position.add(initialTargetPosition);
+    camera.lookAt(initialTargetPosition);
     controls.update();
+    setControlScale(earthScale);
+
+    function getTargetPosition(object, offset) {
+        const targetPosition = object.position.clone();
+        targetPosition.y += object.scale.y * (Math.sign(offset) * 0.5 + offset);
+        return targetPosition;
+    }
 
     // Create Text
-    const text = new Text();
-    text.text = "Hello world!";
-    text.font = interMediumFont;
-    text.fontSize = 0.5;
-    text.color = 0xffffffff;
-    text.position.copy(targetPosition);
-    text.anchorX = "center";
-    text.anchorY = "center";
-    text.lookAt(camera.position);
-    // text.rotation.x = 0.0;
-    // text.rotation.z = 0.0;
-    scene.add(text);
+    ttfLoader.load("fonts/Inter/static/Inter_24pt-Bold.ttf", (json) => {
+        const interBoldFont = fontLoader.parse(json);
+        const baseFontSize = 0.25;
+        const baseFontDepth = 0.05;
 
-    // Update the rendering:
-    text.sync();
+        // Earth Label
+        {
+            const textGeometry = new TextGeometry("Home", {
+                font: interBoldFont,
+                size: baseFontSize * earthScale,
+                height: 1.0,
+                depth: baseFontDepth * earthScale,
+                curveSegments: 2,
+                bevelEnabled: false
+            });
 
-    // const myText = new Text()
-    // scene.add(myText)
-    // // Set properties to configure:
-    // myText.text = "Hello world!"
-    // // myText.font = "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-    // myText.fontSize = 0.2
-    // myText.position.z = -2
-    // myText.color = 0x9966FF
-    // // Update the rendering:
-    // myText.sync()
-    // const interMediumFont = "https://esm.sh/@compai/font-inter/data/typefaces/normal-700.json"
-    // const reenieBeanieRegularFont = "https://esm.sh/@compai/font-reenie-beanie/data/typefaces/normal-400.json"
-    // let earthHeading;
-    // loadText("Hej, I'm AJ", 0.3, 0.25, interMediumFont, (geometry) => {
-    //     geometry.center()
-    //     const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    //     earthHeading = new THREE.Mesh(geometry, material);
-    //     earthHeading.position.set(0.0, 3.5, 0.0);
-    //     earth.mesh.add(earthHeading);
-    // });
-    // let earthSubheading;
-    // loadText([
-    //     "-> Technical Art",
-    //     "-> Design",
-    //     "-> Game Dev"
-    // ].join("\n"), 0.12, 0.25, interMediumFont, (geometry) => {
-    //     geometry.center()
-    //     const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    //     earthSubheading = new THREE.Mesh(geometry, material);
-    //     earthSubheading.position.set(0.0, -1.0, 0.0);
-    //     earthHeading.add(earthSubheading);
-    // });
+            textGeometry.computeBoundingBox();
+            const centerOffset = new THREE.Vector3();
+            textGeometry.boundingBox.getCenter(centerOffset);
+            textGeometry.translate(-centerOffset.x, -centerOffset.y, -centerOffset.z);
+
+            const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+            scene.add(textMesh);
+
+            textMesh.position.copy(initialTargetPosition);
+            textMesh.lookAt(camera.position);
+            labels.push(textMesh);
+        }
+
+        // Moon Label
+        {
+            const textGeometry = new TextGeometry("About", {
+                font: interBoldFont,
+                size: baseFontSize * moonScale,
+                height: 1.0,
+                depth: baseFontDepth * moonScale,
+                curveSegments: 2,
+                bevelEnabled: false
+            });
+
+            textGeometry.computeBoundingBox();
+            const centerOffset = new THREE.Vector3();
+            textGeometry.boundingBox.getCenter(centerOffset);
+            textGeometry.translate(-centerOffset.x, -centerOffset.y, -centerOffset.z);
+
+            const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+            scene.add(textMesh);
+
+            textMesh.position.copy(getTargetPosition(moon.mesh, labelOffset));
+            textMesh.lookAt(camera.position);
+            labels.push(textMesh);
+        }
+    });
 }
 
 ////////////////////////////////
 // Update                     //
 ////////////////////////////////
+
+let labelTrackPosition = camera.position.clone();
+const labelTrackDamping = 5.0;
+
 function runUpdateLoop() {
     const currentTime = clock.getElapsedTime();
     const deltaTime = currentTime - previousTime;
 
-    // Start Update Logic
+    ////////////////////////////////
+    // Start Update Logic         //
+    ////////////////////////////////
 
-    tweenGroup.update();
+    controlsTweenGroup.update();
     controls.update();
 
-    // End Update Logic
+    // Label Tracking
+
+    labelTrackPosition.lerp(camera.position, labelTrackDamping * deltaTime);
+
+    labels.forEach((label, _) => {
+        label.lookAt(labelTrackPosition);
+    });
+
+    ////////////////////////////////
+    // End Update Logic           //
+    ////////////////////////////////
 
     renderer.render(scene, camera);
     window.requestAnimationFrame(runUpdateLoop);
@@ -345,18 +382,37 @@ function runUpdateLoop() {
 }
 
 ////////////////////////////////
+// Controls                   //
+////////////////////////////////
+
+function setControlScale(scale) {
+    controlScale = scale;
+    // controls.minDistance = 1.5 * scale;
+    // controls.maxDistance = 12.0 * scale;
+    controls.minDistance = 3.0 * scale;
+    controls.maxDistance = controls.minDistance;
+    // controls.maxTargetRadius = 10.0 * scale;
+}
+
+////////////////////////////////
 // Scene-specific Logic       //
 ////////////////////////////////
+
 function animateControlTarget(object) {
-    tweenGroup.add(new TWEEN.Tween(controls.target)
-        .to(object.position, 2000) // Target position and duration in milliseconds
+    const oldScale = controlScale;
+    const newScale = object.scale.y;
+    const targetPosition = object.position.clone();
+    targetPosition.y += newScale * (0.5 + labelOffset);
+    controlsTweenGroup.add(new TWEEN.Tween(controls.target)
+        .to(targetPosition, 1500) // Target position and duration in milliseconds
         .easing(TWEEN.Easing.Quadratic.Out) // Optional easing function for smoother animation
         .onStart(() => {
             // controls.enabled = false;
         })
-        .onUpdate((value, _) => {
+        .onUpdate((value, alpha) => {
             // camera.lookAt(controls.target);
             controls.target = value;
+            setControlScale(THREE.MathUtils.lerp(oldScale, newScale, alpha));
         })
         .onComplete(() => {
             // controls.enabled = true;
