@@ -1,0 +1,63 @@
+{
+  "include": [ "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "vite.config.ts" ],
+  "references": [{ "path": "./tsconfig.node.json", }],
+  
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    // File Layout
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // Environment Settings
+    // See also https://aka.ms/tsconfig/module
+    // "module": "nodenext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "esnext",
+    // "types": [],
+    // For nodejs:
+    "lib": [ "DOM", "DOM.Iterable", "ESNext" ],
+    "types": ["node"],
+    // and npm install -D @types/node
+
+    // Other Outputs
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+
+    // Style Options
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "useDefineForClassFields": true,
+    // "noImplicitReturns": true,
+    // "noPropertyAccessFromIndexSignature": true,
+
+    // "allowJs": false,
+
+    // Recommended Options
+    "strict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+    
+    // "baseUrl": ".",
+    // "paths": {
+    //   "three": [ "node_modules/three/build/three.module.js" ],
+    //   "three/addons/*": [ "node_modules/three/examples/jsm/*" ]
+    // },
+  }
+}

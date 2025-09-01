@@ -12,15 +12,17 @@
         -->
     </head>
     <body>
+        <canvas class="threejs"></canvas>
+
+        <!--
         <div id="loader" style="visibility: visible">
-            <!-- Loading animation or message goes here -->
             <div class="spinner"></div>
         </div>
-
+        -->
+        <!--
         <div id="content" style="visibility: collapse">
             <canvas class="threejs"></canvas>
-
-            <!-- Earth: Home Page -->
+            Earth: Home Page
             <div class="planet home" id="earth" id="start">
                 <div class="label">Home</div>
                 <element radius="1.0"></element>
@@ -33,7 +35,7 @@
                 <div class="subheading">
                     <p>It's also true</p>
                 </div>
-                <!-- <div class="heading">
+                    <div class="heading">
                     <h1>Hej, I'm AJ</h1>
                 </div>
                 <div class="subheading">
@@ -42,10 +44,10 @@
                         <p>-> Shader Dev</p>
                         <p>-> Game Design</p>
                     </ul>
-                </div> -->
+                </div>
             </div>
 
-            <!-- Moon: About Page -->
+            Moon: About Page
             <div class="moon about" id="earth-moon">
                 <div class="label">About</div>
                 <element radius="0.25"></element>
@@ -60,7 +62,7 @@
                 </div>
             </div>
         </div>
-
+        -->
         <!--
         <script type="importmap">
 			{
@@ -73,6 +75,6 @@
 		</script>
         -->
         
-        <script type="module" src="./src/app.js" content-type="application/javascript"></script>
+        <script type="module" src="./src/app.ts" content-type="application/javascript"></script>
     </body>
 </html>
